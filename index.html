@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password PIN</title>
+  <style>
+    body {
+      background: #ffaccc;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .phone-screen {
+      background: rgba(255, 209, 224, 0.993);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgb(255, 255, 255);
+      padding: 2.5rem 2rem;
+      border-radius: 30px;
+      box-shadow: 0 20px 40px rgba(153, 0, 0, 0.479);
+      text-align: center;
+      color: #fff;
+      width: 280px;
+      transition: transform 0.2s ease;
+    }
+
+    /* Animasi getar jika PIN salah */
+    .shake {
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    .lock-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+    .dots-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .dot.active {
+      background: #ff6d9e;
+      border-color: #ff6d9e;
+      box-shadow: 0 0 10px #ff6d9e;
+    }
+
+    /* Teks pesan error */
+    .error-message {
+      color: #d8000c;
+      font-size: 0.85rem;
+      font-weight: bold;
+      min-height: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .pin-keypad button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 1px solid rgb(255, 255, 255);
+      background: rgb(255, 255, 255);
+      color: rgb(255, 109, 158);
+      font-size: 1.4rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin: 0 auto;
+    }
+
+    .pin-keypad button:active {
+      background: rgba(255, 142, 180, 0.993);
+      color: #fff;
+      transform: scale(0.92);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-screen" id="phoneScreen">
+    <div class="lock-header">
+      <div class="lock-icon">🔒</div>
+      <h2>Masukkan PIN</h2>
+      <p style="margin: 0;">Masukkan tanggal lahir anda!</p>
+      
+      <div class="dots-container" id="dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+
+      <!-- Tempat menampilkan pesan kesalahan -->
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <div class="pin-keypad">
+      <button onclick="pressNum(1)">1</button>
+      <button onclick="pressNum(2)">2</button>
+      <button onclick="pressNum(3)">3</button>
+      <button onclick="pressNum(4)">4</button>
+      <button onclick="pressNum(5)">5</button>
+      <button onclick="pressNum(6)">6</button>
+      <button onclick="pressNum(7)">7</button>
+      <button onclick="pressNum(8)">8</button>
+      <button onclick="pressNum(9)">9</button>
+      <button onclick="clearPin()">C</button>
+      <button onclick="pressNum(0)">0</button>
+      <button onclick="checkPin()">✓</button>
+    </div>
+  </div>
+
+  <script>
+    // --- PENGATURAN ---
+    const CORRECT_PIN = "1231"; // PIN yang benar
+    const TARGET_URL = "HappyGirlfriendDayAdikSayang.html"; // Ubah dengan URL website tujuan Anda
+
+    let currentPin = "";
+    const dots = document.querySelectorAll('.dot');
+    const errorMessage = document.getElementById('errorMessage');
+    const phoneScreen = document.getElementById('phoneScreen');
+
+    // Fungsi saat tombol angka ditekan
+    function pressNum(num) {
+      if (currentPin.length < 4) {
+        currentPin += num;
+        updateDots();
+        errorMessage.textContent = ""; // Hapus pesan kesalahan saat mengetik ulang
+      }
+    }
+
+    // Fungsi menghapus input PIN
+    function clearPin() {
+      currentPin = "";
+      updateDots();
+      errorMessage.textContent = "";
+    }
+
+    // Memperbarui tampilan titik indikator
+    function updateDots() {
+      dots.forEach((dot, index) => {
+        if (index < currentPin.length) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+
+    // Fungsi untuk memeriksa PIN (saat tombol ✓ ditekan)
+    function checkPin() {
+      if (currentPin.length < 4) {
+        showError("PIN harus 4 digit!");
+        return;
+      }
+
+      if (currentPin === CORRECT_PIN) {
+        // Jika PIN BENAR: Arahkan ke website tujuan
+        window.location.href = TARGET_URL; 
+      } else {
+        // Jika PIN SALAH
+        showError("PIN Salah! Coba lagi.");
+        clearPin();
+      }
+    }
+
+    // Menampilkan efek getar dan pesan error
+    function showError(message) {
+      errorMessage.textContent = message;
+      phoneScreen.classList.add('shake');
+      
+      // Hapus efek getar setelah animasi selesai
+      setTimeout(() => {
+        phoneScreen.classList.remove('shake');
+      }, 300);
+    }
+  </script>
+
+</body>
+</html>
